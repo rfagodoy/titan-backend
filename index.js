@@ -42,6 +42,32 @@ Quando sugerir treinos, use formato de lista clara com séries x repetições.`,
   }
 });
 
+// ✅ NOVA ROTA: Geração automática de plano com IA
+app.post('/generate-plan', async (req, res) => {
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(req.body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json(data);
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error('Erro ao gerar plano:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 app.get('/health', (req, res) => res.json({ status: 'ok', app: 'TITAN Backend' }));
 
 const PORT = process.env.PORT || 3000;
